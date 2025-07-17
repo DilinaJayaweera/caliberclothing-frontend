@@ -1,83 +1,233 @@
-const BASE_URL = 'http://localhost:8083/api';
+import axios from 'axios';
 
-class ApiService {
-  constructor() {
-    this.baseURL = BASE_URL;
-  }
+// Create axios instance with base URL
+const API = axios.create({
+  baseURL: '/api',
+  timeout: 10000,
+});
 
-  async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
-    
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      credentials: 'include', // Include cookies for session management
-      ...options,
-    };
-
-    try {
-      const response = await fetch(url, config);
-      
-      // Handle different response types
-      const contentType = response.headers.get('content-type');
-      let data;
-      
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        data = await response.text();
-      }
-
-      if (!response.ok) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
-      }
-      
-      return data;
-    } catch (error) {
-      console.error('API request failed:', error);
-      throw error;
+// Add auth token to requests if available
+API.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
+);
 
-  async get(endpoint, options = {}) {
-    return this.request(endpoint, {
-      method: 'GET',
-      ...options,
-    });
+// Handle response errors globally
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Unauthorized - clear auth data and redirect to login
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
   }
+);
 
-  async post(endpoint, data, options = {}) {
-    return this.request(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(data),
-      ...options,
-    });
-  }
+// Authentication APIs
+export const authAPI = {
+  login: (username, password) => API.post('/auth/login', { username, password }),
+  logout: () => API.post('/auth/logout'),
+  register: (userData) => API.post('/customer/register', userData),
+  changePassword: (passwordData) => API.post('/auth/change-password', passwordData),
+  getCurrentUser: () => API.get('/auth/user'),
+};
 
-  async put(endpoint, data, options = {}) {
-    return this.request(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-      ...options,
-    });
-  }
+// Public APIs
+export const publicAPI = {
+  getProducts: () => API.get('/public/products'),
+  getProduct: (id) => API.get(`/public/products/${id}`),
+  getCategories: () => API.get('/public/categories'),
+  searchProducts: (query) => API.get(`/public/products/search?name=${query}`),
+  getProductsByCategory: (categoryId) => API.get(`/public/products/category/${categoryId}`),
+};
 
-  async delete(endpoint, options = {}) {
-    return this.request(endpoint, {
-      method: 'DELETE',
-      ...options,
-    });
-  }
+// CEO APIs
+export const ceoAPI = {
+  getDashboard: () => API.get('/ceo/dashboard'),
+  
+  // Employee Management
+  getEmployees: () => API.get('/ceo/employees'),
+  getEmployee: (id) => API.get(`/ceo/employees/${id}`),
+  createEmployee: (employeeData) => API.post('/ceo/employees', employeeData),
+  updateEmployee: (id, employeeData) => API.put(`/ceo/employees/${id}`, employeeData),
+  deleteEmployee: (id) => API.delete(`/ceo/employees/${id}`),
+  
+  // Product Management
+  getProducts: () => API.get('/ceo/products'),
+  createProduct: (productData) => API.post('/ceo/products', productData),
+  updateProduct: (id, productData) => API.put(`/ceo/products/${id}`, productData),
+  deleteProduct: (id) => API.delete(`/ceo/products/${id}`),
+  
+  // Order Viewing
+  getOrders: () => API.get('/ceo/orders'),
+  getOrder: (id) => API.get(`/ceo/orders/${id}`),
+  
+  // Customer Viewing
+  getCustomers: () => API.get('/ceo/customers'),
+  getCustomer: (id) => API.get(`/ceo/customers/${id}`),
+  
+  // Delivery Provider Management
+  getDeliveryProviders: () => API.get('/ceo/delivery-providers'),
+  createDeliveryProvider: (providerData) => API.post('/ceo/delivery-providers', providerData),
+  updateDeliveryProvider: (id, providerData) => API.put(`/ceo/delivery-providers/${id}`, providerData),
+  deleteDeliveryProvider: (id) => API.delete(`/ceo/delivery-providers/${id}`),
+  
+  // Supplier Management
+  getSuppliers: () => API.get('/ceo/suppliers'),
+  createSupplier: (supplierData) => API.post('/ceo/suppliers', supplierData),
+  updateSupplier: (id, supplierData) => API.put(`/ceo/suppliers/${id}`, supplierData),
+  deleteSupplier: (id) => API.delete(`/ceo/suppliers/${id}`),
+  
+  // Supplier Payment Management
+  getSupplierPayments: () => API.get('/ceo/supplier-payments'),
+  createSupplierPayment: (paymentData) => API.post('/ceo/supplier-payments', paymentData),
+  updateSupplierPayment: (id, paymentData) => API.put(`/ceo/supplier-payments/${id}`, paymentData),
+  deleteSupplierPayment: (id) => API.delete(`/ceo/supplier-payments/${id}`),
+  
+  // Reports
+  getSalesReport: (params) => API.get('/reports/sales', { params }),
+  getCustomerGrowthReport: (params) => API.get('/reports/customer-growth', { params }),
+  getMostSoldProductsReport: (params) => API.get('/reports/most-sold-products', { params }),
+  getRevenueAnalysisReport: (params) => API.get('/reports/revenue-analysis', { params }),
+  getInventoryStatusReport: () => API.get('/reports/inventory-status'),
+  getOrderStatusDistributionReport: (params) => API.get('/reports/order-status-distribution', { params }),
+  getSupplierPerformanceReport: (params) => API.get('/reports/supplier-performance', { params }),
+  getCustomerDemographicsReport: () => API.get('/reports/customer-demographics'),
+};
 
-  async patch(endpoint, data, options = {}) {
-    return this.request(endpoint, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-      ...options,
-    });
-  }
-}
+// Product Manager APIs
+export const productManagerAPI = {
+  getDashboard: () => API.get('/product-manager/dashboard'),
+  getProducts: () => API.get('/product-manager/products'),
+  getProduct: (id) => API.get(`/product-manager/products/${id}`),
+  createProduct: (productData) => API.post('/product-manager/products', productData),
+  updateProduct: (id, productData) => API.put(`/product-manager/products/${id}`, productData),
+  deleteProduct: (id) => API.delete(`/product-manager/products/${id}`),
+  searchProducts: (query) => API.get(`/product-manager/products/search?name=${query}`),
+  getProductsByCategory: (categoryId) => API.get(`/product-manager/products/category/${categoryId}`),
+  getLowStockProducts: (threshold) => API.get(`/product-manager/products/low-stock?threshold=${threshold}`),
+  updateStock: (id, quantity) => API.put(`/product-manager/products/${id}/stock?quantity=${quantity}`),
+};
 
-export const api = new ApiService();
+// Merchandise Manager APIs
+export const merchandiseManagerAPI = {
+  getDashboard: () => API.get('/merchandise-manager/dashboard'),
+  
+  // Low Stock Notifications
+  getLowStockNotifications: () => API.get('/merchandise-manager/notifications/low-stock'),
+  markAsReordered: (productId) => API.post(`/merchandise-manager/notifications/mark-reordered/${productId}`),
+  
+  // Inventory Management
+  getInventory: () => API.get('/merchandise-manager/inventory'),
+  updateInventoryQuantity: (id, quantity) => API.put(`/merchandise-manager/inventory/${id}/quantity?quantity=${quantity}`),
+  updateReorderLevel: (id, reorderLevel) => API.put(`/merchandise-manager/inventory/${id}/reorder-level?reorderLevel=${reorderLevel}`),
+  addStock: (productId, quantity) => API.patch(`/merchandise-manager/inventory/add-stock/${productId}?quantity=${quantity}`),
+  updateProductOnDelivery: (id, deliveredQuantity) => API.put(`/merchandise-manager/products/${id}/delivered?deliveredQuantity=${deliveredQuantity}`),
+  
+  // Supplier Management
+  getSuppliers: () => API.get('/merchandise-manager/suppliers'),
+  createSupplier: (supplierData) => API.post('/merchandise-manager/suppliers', supplierData),
+  updateSupplier: (id, supplierData) => API.put(`/merchandise-manager/suppliers/${id}`, supplierData),
+  searchSuppliers: (name) => API.get(`/merchandise-manager/suppliers/search?name=${name}`),
+  
+  // Supplier Payment Management
+  getSupplierPayments: () => API.get('/merchandise-manager/supplier-payments'),
+  createSupplierPayment: (paymentData) => API.post('/merchandise-manager/supplier-payments', paymentData),
+  updateSupplierPayment: (id, paymentData) => API.put(`/merchandise-manager/supplier-payments/${id}`, paymentData),
+  getSupplierPaymentsByDateRange: (startDate, endDate) => API.get(`/merchandise-manager/supplier-payments/date-range?startDate=${startDate}&endDate=${endDate}`),
+};
+
+// Dispatch Officer APIs
+export const dispatchOfficerAPI = {
+  getDashboard: () => API.get('/dispatch-officer/dashboard'),
+  
+  // Order Management
+  getOrders: () => API.get('/dispatch-officer/orders'),
+  getOrder: (id) => API.get(`/dispatch-officer/orders/${id}`),
+  getOrdersByCustomer: (customerId) => API.get(`/dispatch-officer/orders/customer/${customerId}`),
+  getOrdersByStatus: (statusId) => API.get(`/dispatch-officer/orders/status/${statusId}`),
+  getOrdersByDateRange: (startDate, endDate) => API.get(`/dispatch-officer/orders/date-range?startDate=${startDate}&endDate=${endDate}`),
+  getOrdersByPriceRange: (minPrice, maxPrice) => API.get(`/dispatch-officer/orders/price-range?minPrice=${minPrice}&maxPrice=${maxPrice}`),
+  updateOrderStatus: (id, statusId) => API.put(`/dispatch-officer/orders/${id}/status`, { statusId }),
+  
+  // Order Statuses
+  getOrderStatuses: () => API.get('/dispatch-officer/order-statuses'),
+  
+  // Customer Viewing
+  getCustomers: () => API.get('/dispatch-officer/customers'),
+  getCustomer: (id) => API.get(`/dispatch-officer/customers/${id}`),
+  searchCustomers: (searchTerm) => API.get(`/dispatch-officer/customers/search?searchTerm=${searchTerm}`),
+  getActiveCustomers: () => API.get('/dispatch-officer/customers/active'),
+  
+  // Delivery Provider Viewing
+  getDeliveryProviders: () => API.get('/dispatch-officer/delivery-providers'),
+  getDeliveryProvider: (id) => API.get(`/dispatch-officer/delivery-providers/${id}`),
+  getActiveDeliveryProviders: () => API.get('/dispatch-officer/delivery-providers/active'),
+  
+  // Statistics
+  getStatistics: () => API.get('/dispatch-officer/statistics'),
+};
+
+// Customer APIs
+export const customerAPI = {
+  getDashboard: () => API.get('/customer/dashboard'),
+  
+  // Profile Management
+  getProfile: () => API.get('/customer/profile'),
+  updateProfile: (profileData) => API.put('/customer/profile', profileData),
+  
+  // Cart Management
+  getCart: () => API.get('/customer/cart'),
+  addToCart: (productId, quantity) => API.post('/customer/cart/add', { productId, quantity }),
+  updateCartItem: (productId, quantity) => API.put('/customer/cart/update', { productId, quantity }),
+  removeFromCart: (productId) => API.delete(`/customer/cart/remove/${productId}`),
+  clearCart: () => API.delete('/customer/cart/clear'),
+  getCartCount: () => API.get('/customer/cart/count'),
+  getCartTotal: () => API.get('/customer/cart/total'),
+  
+  // Wishlist Management
+  getWishlist: () => API.get('/customer/wishlist'),
+  addToWishlist: (productId) => API.post(`/customer/wishlist/add/${productId}`),
+  removeFromWishlist: (productId) => API.delete(`/customer/wishlist/remove/${productId}`),
+  getWishlistCount: () => API.get('/customer/wishlist/count'),
+  moveWishlistItemToCart: (productId, quantity) => API.post(`/customer/wishlist/move-to-cart/${productId}`, { quantity }),
+  
+  // Order Management
+  getOrders: (params) => API.get('/customer/orders', { params }),
+  getOrder: (id) => API.get(`/customer/orders/${id}`),
+  placeOrder: (orderData) => API.post('/customer/orders', orderData),
+  getOrderStatus: (orderNo) => API.get(`/customer/orders/status/${orderNo}`),
+  getOrderReceipt: (id) => API.get(`/customer/orders/${id}/receipt`),
+  
+  // Payment Information
+  getPaymentInfo: () => API.get('/customer/payment-info'),
+  
+  // Analytics
+  getAnalytics: () => API.get('/customer/analytics/summary'),
+  getSpendingTrend: (months) => API.get(`/customer/analytics/spending-trend?months=${months}`),
+};
+
+// Common APIs
+export const commonAPI = {
+  getProvinces: () => API.get('/provinces'),
+  getStatuses: () => API.get('/statuses'),
+  getCategories: () => API.get('/categories'),
+  getSuppliers: () => API.get('/suppliers'),
+  getDeliveryProviders: () => API.get('/delivery-providers'),
+  getPaymentMethods: () => API.get('/payment-methods'),
+  getPaymentStatuses: () => API.get('/payment-statuses'),
+  getOrderStatuses: () => API.get('/order-statuses'),
+};
+
+export default API;

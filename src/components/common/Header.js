@@ -1,120 +1,147 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { customerAPI } from '../../services/api';
 
-const Header = ({ onCartClick }) => {
+const Header = () => {
   const { user, logout } = useAuth();
-  const { getCartItemsCount } = useCart();
   const navigate = useNavigate();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
+  useEffect(() => {
+    if (user && user.role === 'CUSTOMER') {
+      fetchCartCount();
+    }
+  }, [user]);
+
+  const fetchCartCount = async () => {
+    try {
+      const response = await customerAPI.getCartCount();
+      if (response.data.success) {
+        setCartCount(response.data.count);
+      }
+    } catch (error) {
+      console.error('Error fetching cart count:', error);
+    }
   };
 
-  const handleDashboard = () => {
-    if (user?.role) {
-      switch (user.role.toUpperCase()) {
-        case 'CEO':
-          navigate('/ceo/dashboard');
-          break;
-        case 'PRODUCT_MANAGER':
-          navigate('/product-manager/dashboard');
-          break;
-        case 'MERCHANDISE_MANAGER':
-          navigate('/merchandise-manager/dashboard');
-          break;
-        case 'DISPATCH_OFFICER':
-          navigate('/dispatch-officer/dashboard');
-          break;
-        case 'CUSTOMER':
-          navigate('/');
-          break;
-        default:
-          navigate('/');
-      }
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const getDashboardLink = () => {
+    if (!user) return '/';
+    
+    switch (user.role) {
+      case 'CEO':
+        return '/ceo/dashboard';
+      case 'PRODUCT_MANAGER':
+        return '/product-manager/dashboard';
+      case 'MERCHANDISE_MANAGER':
+        return '/merchandise-manager/dashboard';
+      case 'DISPATCH_OFFICER':
+        return '/dispatch-officer/dashboard';
+      case 'CUSTOMER':
+        return '/customer/dashboard';
+      default:
+        return '/';
     }
   };
 
   return (
     <header className="header">
-      <div className="container">
-        <div className="header-content">
-          {/* Logo */}
-          <div className="logo">
-            <Link to="/">
-              <h1>Caliber Clothing</h1>
-            </Link>
-          </div>
+      <div className="header-content">
+        <Link to="/" className="logo">
+          Caliber Clothing
+        </Link>
 
-          {/* Navigation */}
-          <nav className="nav">
-            <Link to="/" className="nav-link">Home</Link>
-            
-            {user && (
+        <nav>
+          <ul className="nav-links">
+            <li><Link to="/products">Products</Link></li>
+            {user && user.role === 'CUSTOMER' && (
               <>
-                {user.role === 'CUSTOMER' && (
-                  <>
-                    <button 
-                      onClick={onCartClick} 
-                      className="nav-link cart-button"
-                    >
-                      Cart ({getCartItemsCount()})
-                    </button>
-                  </>
-                )}
-                
-                {user.role !== 'CUSTOMER' && (
-                  <button 
-                    onClick={handleDashboard}
-                    className="nav-link"
-                  >
-                    Dashboard
-                  </button>
-                )}
+                <li>
+                  <Link to="/customer/cart">
+                    Cart {cartCount > 0 && `(${cartCount})`}
+                  </Link>
+                </li>
+                <li><Link to="/customer/wishlist">Wishlist</Link></li>
               </>
             )}
-          </nav>
+          </ul>
+        </nav>
 
-          {/* User Actions */}
-          <div className="user-actions">
-            {user ? (
-              <div className="user-menu">
-                <span className="user-info">
-                  Welcome, {user.username}
-                  <span className="user-role">({user.role})</span>
-                </span>
-                
+        <div className="auth-section">
+          {user ? (
+            <div className="user-menu">
+              <button 
+                className="user-menu-toggle"
+                onClick={() => setShowUserMenu(!showUserMenu)}
+              >
+                {user.username} ▼
+              </button>
+              
+              {showUserMenu && (
                 <div className="user-dropdown">
-                  <Link to="/change-password" className="dropdown-item">
+                  <Link 
+                    to={getDashboardLink()} 
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  {user.role === 'CUSTOMER' && (
+                    <>
+                      <Link 
+                        to="/customer/profile" 
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        Profile
+                      </Link>
+                      <Link 
+                        to="/customer/orders" 
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        Order History
+                      </Link>
+                    </>
+                  )}
+                  <Link 
+                    to="/change-password" 
+                    onClick={() => setShowUserMenu(false)}
+                  >
                     Change Password
                   </Link>
-                  
-                  {user.role !== 'CUSTOMER' && (
-                    <button 
-                      onClick={handleDashboard}
-                      className="dropdown-item"
-                    >
-                      Dashboard
-                    </button>
-                  )}
-                  
                   <button 
-                    onClick={handleLogout}
-                    className="dropdown-item logout-btn"
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      handleLogout();
+                    }}
+                    style={{ 
+                      background: 'none', 
+                      border: 'none', 
+                      width: '100%', 
+                      textAlign: 'left',
+                      padding: '0.75rem 1rem',
+                      cursor: 'pointer'
+                    }}
                   >
                     Logout
                   </button>
                 </div>
-              </div>
-            ) : (
-              <div className="auth-buttons">
-                <Link to="/login" className="btn btn-outline">Login</Link>
-                <Link to="/register" className="btn btn-primary">Register</Link>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            <div className="auth-buttons">
+              <Link to="/login" className="btn btn-secondary">Login</Link>
+              <Link to="/register" className="btn btn-primary">Register</Link>
+            </div>
+          )}
         </div>
       </div>
     </header>
