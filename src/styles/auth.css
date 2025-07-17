@@ -1,0 +1,277 @@
+/* Authentication Styles */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 2rem 1rem;
+}
+
+.auth-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.register-container {
+  max-width: 600px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+  color: #000000;
+  margin-bottom: 0.5rem;
+  font-size: 1.75rem;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  color: #666666;
+  text-decoration: none;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.back-link:hover {
+  color: #000000;
+}
+
+.auth-form {
+  margin-bottom: 1.5rem;
+}
+
+.auth-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.auth-form .form-input {
+  padding: 1rem;
+  font-size: 1rem;
+  border: 2px solid #eeeeee;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.auth-form .form-input:focus {
+  border-color: #000000;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form label {
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.auth-footer {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid #eeeeee;
+}
+
+.auth-footer p {
+  color: #666666;
+  margin: 0;
+}
+
+.auth-link {
+  color: #000000;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.auth-link:hover {
+  color: #333333;
+  text-decoration: underline;
+}
+
+/* Register Form Specific Styles */
+.register-form {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.register-form .form-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid #eeeeee;
+  border-radius: 6px;
+  background-color: #fafafa;
+}
+
+.register-form .form-section h3 {
+  color: #000000;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #000000;
+}
+
+.register-form .form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.register-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.register-form textarea.form-input {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.register-form select.form-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+/* Change Password Form */
+.change-password-container {
+  max-width: 500px;
+}
+
+.password-requirements {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.password-requirements ul {
+  margin: 0.5rem 0 0 1rem;
+  color: #666666;
+}
+
+.password-requirements li {
+  margin-bottom: 0.25rem;
+}
+
+.password-strength {
+  margin-top: 0.5rem;
+}
+
+.strength-bar {
+  height: 4px;
+  border-radius: 2px;
+  background-color: #eeeeee;
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.strength-weak { background-color: #dc3545; }
+.strength-medium { background-color: #ffc107; }
+.strength-strong { background-color: #28a745; }
+
+.strength-text {
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .auth-page {
+    padding: 1rem;
+  }
+  
+  .auth-container {
+    padding: 1.5rem;
+  }
+  
+  .register-container {
+    max-width: 90vw;
+  }
+  
+  .auth-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .register-form .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .register-form {
+    max-height: 60vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 1rem;
+  }
+  
+  .register-form .form-section {
+    padding: 1rem;
+  }
+  
+  .auth-header h1 {
+    font-size: 1.25rem;
+  }
+  
+  .register-form {
+    max-height: 50vh;
+  }
+}
+
+/* Loading State */
+.auth-form .btn:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+.auth-form .btn:disabled:hover {
+  background-color: #cccccc;
+  transform: none;
+}
+
+/* Focus Styles for Accessibility */
+.auth-form .form-input:focus,
+.auth-form .btn:focus {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+/* Custom Checkbox/Radio Styles */
+.checkbox-group,
+.radio-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.checkbox-group input[type="checkbox"],
+.radio-group input[type="radio"] {
+  margin-right: 0.5rem;
+  transform: scale(1.2);
+}
+
+.checkbox-group label,
+.radio-group label {
+  margin-bottom: 0;
+  cursor: pointer;
+}
