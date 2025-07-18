@@ -263,7 +263,7 @@ const LandingPage = () => {
                         {product.description?.length > 100 && '...'}
                       </p>
                       <div className="product-price">
-                        ${product.sellingPrice?.toFixed(2)}
+                        Rs.{product.sellingPrice?.toFixed(2)}
                       </div>
                       <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
                         In Stock: {product.quantityInStock}

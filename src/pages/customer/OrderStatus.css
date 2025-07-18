@@ -1,0 +1,529 @@
+.order-status {
+  padding: 20px;
+  background-color: white;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid black;
+}
+
+.header h1 {
+  color: black;
+  margin: 0 0 15px 0;
+  font-size: 2rem;
+}
+
+.order-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.order-number {
+  color: black;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.order-date {
+  color: #666;
+  font-size: 1rem;
+}
+
+.status-content {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.status-overview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  background-color: #f8f9fa;
+  padding: 30px;
+  border-radius: 8px;
+  border: 2px solid black;
+}
+
+.current-status {
+  text-align: center;
+}
+
+.current-status h2 {
+  color: black;
+  margin: 0 0 20px 0;
+  font-size: 1.3rem;
+}
+
+.status-badge.large {
+  padding: 15px 25px;
+  border-radius: 25px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  display: inline-block;
+}
+
+.status-badge.pending {
+  background-color: #ffc107;
+  color: black;
+}
+
+.status-badge.processing {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.status-badge.shipped {
+  background-color: #fd7e14;
+  color: white;
+}
+
+.status-badge.delivered {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-badge.cancelled {
+  background-color: #dc3545;
+  color: white;
+}
+
+.status-badge.unknown {
+  background-color: #6c757d;
+  color: white;
+}
+
+.status-description {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.order-summary h3 {
+  color: black;
+  margin: 0 0 20px 0;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
+
+.summary-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+.detail-row .label {
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.detail-row .value {
+  color: black;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: right;
+}
+
+.detail-row .value.total {
+  color: #28a745;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.progress-tracker {
+  background-color: white;
+  border: 2px solid black;
+  border-radius: 8px;
+  padding: 30px;
+}
+
+.progress-tracker h2 {
+  color: black;
+  margin: 0 0 30px 0;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.progress-container {
+  position: relative;
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+
+.step-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  border: 3px solid #e9ecef;
+  transition: all 0.3s;
+}
+
+.step.completed .step-icon {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.step.current .step-icon {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: black;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.step-info h4 {
+  color: black;
+  margin: 0 0 5px 0;
+  font-size: 1rem;
+}
+
+.step-info p {
+  color: #666;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.step.completed .step-info h4 {
+  color: #28a745;
+}
+
+.step.current .step-info h4 {
+  color: #ffc107;
+}
+
+.progress-bar {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  right: 30px;
+  height: 4px;
+  background-color: #e9ecef;
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #28a745;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.estimated-delivery, .payment-info {
+  background-color: white;
+  border: 2px solid black;
+  border-radius: 8px;
+  padding: 30px;
+}
+
+.estimated-delivery h2, .payment-info h2 {
+  color: black;
+  margin: 0 0 20px 0;
+  font-size: 1.3rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
+
+.delivery-info {
+  text-align: center;
+}
+
+.delivery-complete, .delivery-cancelled, .delivery-pending {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.delivery-icon {
+  font-size: 3rem;
+}
+
+.delivery-complete h3, .delivery-cancelled h3, .delivery-pending h3 {
+  color: black;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.delivery-complete p, .delivery-cancelled p, .delivery-pending p {
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.delivery-note {
+  font-style: italic;
+  font-size: 0.9rem !important;
+}
+
+.payment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.payment-summary h4 {
+  color: black;
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+}
+
+.payment-summary p {
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.bank-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+.bank-info, .payment-instructions {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.bank-info h4, .payment-instructions h4 {
+  color: black;
+  margin: 0 0 15px 0;
+  font-size: 1rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 8px;
+}
+
+.bank-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 5px 0;
+}
+
+.bank-label {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.bank-value {
+  color: black;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.payment-instructions ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #666;
+}
+
+.payment-instructions li {
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.back-to-orders-btn, .view-receipt-btn, .contact-support-btn {
+  padding: 12px 24px;
+  border: 2px solid;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.back-to-orders-btn {
+  background-color: white;
+  color: black;
+  border-color: black;
+}
+
+.back-to-orders-btn:hover {
+  background-color: black;
+  color: white;
+}
+
+.view-receipt-btn {
+  background-color: #17a2b8;
+  color: white;
+  border-color: #17a2b8;
+}
+
+.view-receipt-btn:hover {
+  background-color: #138496;
+  border-color: #138496;
+}
+
+.contact-support-btn {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.contact-support-btn:hover {
+  background-color: #218838;
+  border-color: #218838;
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 20px;
+  color: #666;
+}
+
+.error-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.error-container h2 {
+  color: black;
+  margin: 0 0 15px 0;
+  font-size: 1.8rem;
+}
+
+.error-container p {
+  margin: 0 0 30px 0;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.back-btn {
+  display: inline-block;
+  background-color: black;
+  color: white;
+  padding: 15px 30px;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+  background-color: #333;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  font-size: 1.2rem;
+  color: black;
+}
+
+@media (max-width: 768px) {
+  .order-status {
+    padding: 10px;
+  }
+
+  .status-overview {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+
+  .progress-steps {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .step {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .step-icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+    margin-bottom: 0;
+  }
+
+  .progress-bar {
+    display: none;
+  }
+
+  .bank-details {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .error-container {
+    padding: 40px 10px;
+  }
+
+  .error-icon {
+    font-size: 3rem;
+  }
+
+  .error-container h2 {
+    font-size: 1.5rem;
+  }
+}

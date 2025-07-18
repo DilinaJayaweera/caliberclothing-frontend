@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import './DeliveryProviderViewing.css';
+import { dispatchOfficerAPI } from '../../services/api';
 
 const DeliveryProviderViewing = () => {
   const [providers, setProviders] = useState([]);
@@ -14,15 +14,8 @@ const DeliveryProviderViewing = () => {
 
   const fetchProviders = async () => {
     try {
-      const response = await fetch('/api/dispatch-officer/delivery-providers', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setProviders(data);
-      }
+      const response = await dispatchOfficerAPI.getDeliveryProviders();
+      setProviders(response.data);
     } catch (error) {
       console.error('Error fetching delivery providers:', error);
     } finally {
@@ -32,15 +25,8 @@ const DeliveryProviderViewing = () => {
 
   const fetchActiveProviders = async () => {
     try {
-      const response = await fetch('/api/dispatch-officer/delivery-providers/active', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setProviders(data);
-      }
+      const response = await dispatchOfficerAPI.getActiveDeliveryProviders();
+      setProviders(response.data);
     } catch (error) {
       console.error('Error fetching active delivery providers:', error);
     }

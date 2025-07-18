@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
+// Test Component (add this import)
+import ConnectionTest from './components/test/ConnectionTest';
+
 // Public Pages
 import LandingPage from './pages/public/LandingPage';
 import LoginPage from './pages/auth/LoginPage';
@@ -63,6 +66,9 @@ function App() {
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<CustomerRegistration />} />
+
+            {/* Test Route - Add this temporarily */}
+            <Route path="/test" element={<ConnectionTest />} />
 
             {/* CEO Routes */}
             <Route path="/ceo/dashboard" element={

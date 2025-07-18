@@ -185,10 +185,10 @@ const CEODashboard = () => {
                 </div>
                 <div className="card-body">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
+                    {/* <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
                       <span>Total System Users:</span>
                       <strong>{stats.employees + stats.customers}</strong>
-                    </div>
+                    </div> */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
                       <span>Active Products:</span>
                       <strong>{stats.products}</strong>
@@ -197,15 +197,15 @@ const CEODashboard = () => {
                       <span>Total Orders:</span>
                       <strong>{stats.orders}</strong>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
+                    {/* <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
                       <span>Business Partners:</span>
                       <strong>{stats.suppliers + stats.deliveryProviders}</strong>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
 
-              <div className="card">
+              {/* <div className="card">
                 <div className="card-header">
                   <h3 className="card-title">CEO Responsibilities</h3>
                 </div>
@@ -234,7 +234,7 @@ const CEODashboard = () => {
                     </li>
                   </ul>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Quick Reports */}
@@ -269,7 +269,7 @@ const CEODashboard = () => {
         </div>
       </main>
       
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

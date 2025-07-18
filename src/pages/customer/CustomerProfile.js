@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import './CustomerProfile.css';
+import './CustomerManagement.css';
 
 const CustomerProfile = () => {
   const [customer, setCustomer] = useState(null);

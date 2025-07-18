@@ -29,7 +29,7 @@ const EmployeeManagement = () => {
     username: '',
     password: '',
     role: '',
-    statusId: 1
+    statusId: ''
   });
 
   const roles = [
@@ -61,12 +61,29 @@ const EmployeeManagement = () => {
     try {
       const response = await commonAPI.getStatuses();
       setStatuses(response.data);
+      
+      // Set default statusId to the first status or find 'Active' status
+      if (response.data && response.data.length > 0) {
+        const defaultStatus = response.data.find(status => 
+          status.value.toLowerCase() === 'active' || status.value.toLowerCase() === 'enabled'
+        ) || response.data[0];
+        
+        setFormData(prev => ({
+          ...prev,
+          statusId: defaultStatus.id
+        }));
+      }
     } catch (error) {
       console.error('Error fetching statuses:', error);
     }
   };
 
   const resetForm = () => {
+    // Get default status ID
+    const defaultStatus = statuses.find(status => 
+      status.value.toLowerCase() === 'active' || status.value.toLowerCase() === 'enabled'
+    ) || (statuses.length > 0 ? statuses[0] : null);
+    
     setFormData({
       employeeNo: '',
       fullName: '',
@@ -82,7 +99,7 @@ const EmployeeManagement = () => {
       username: '',
       password: '',
       role: '',
-      statusId: 1
+      statusId: defaultStatus ? defaultStatus.id : ''
     });
   };
 
@@ -109,7 +126,7 @@ const EmployeeManagement = () => {
       username: employee.user?.username || '',
       password: '', // Don't populate password for security
       role: employee.user?.role || '',
-      statusId: employee.status?.id || 1
+      statusId: employee.status?.id || (statuses.length > 0 ? statuses[0].id : '')
     });
     setModalMode('edit');
     setSelectedEmployee(employee);
@@ -199,46 +216,55 @@ const EmployeeManagement = () => {
     }
 
     try {
-      const employeeData = {
-        employeeNo: formData.employeeNo,
-        fullName: formData.fullName,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        dateOfBirth: formData.dateOfBirth,
-        sex: formData.sex,
-        civilStatus: formData.civilStatus,
-        address: formData.address,
-        mobileNumber: formData.mobileNumber,
-        telephoneNumber: formData.telephoneNumber || null,
-        nicNo: formData.nicNo
-      };
-
-      const userData = {
-        username: formData.username,
-        password: formData.password,
-        role: formData.role,
-        isActive: true
-      };
-
-      const statusDTO = {
-        id: formData.statusId
-      };
-
       if (modalMode === 'create') {
-        await ceoAPI.createEmployee({
-          ...employeeData,
-          user: userData,
-          status: statusDTO,
-          role: formData.role
-        });
+        // For create, send flat payload
+        const createPayload = {
+          employeeNo: formData.employeeNo,
+          fullName: formData.fullName,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          dateOfBirth: formData.dateOfBirth,
+          sex: formData.sex,
+          civilStatus: formData.civilStatus,
+          address: formData.address,
+          mobileNumber: formData.mobileNumber,
+          telephoneNumber: formData.telephoneNumber || null,
+          nicNo: formData.nicNo,
+          username: formData.username,
+          password: formData.password,
+          role: formData.role,
+          statusId: parseInt(formData.statusId) // Ensure it's a number
+        };
+        
+        await ceoAPI.createEmployee(createPayload);
         setSuccess('Employee created successfully');
       } else {
-        await ceoAPI.updateEmployee(selectedEmployee.id, {
-          ...employeeData,
-          user: modalMode === 'edit' && formData.password ? userData : { ...userData, password: undefined },
-          status: statusDTO,
-          role: formData.role
-        });
+        // For update, send flat payload with all fields
+        const updatePayload = {
+          employeeNo: formData.employeeNo,
+          fullName: formData.fullName,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          dateOfBirth: formData.dateOfBirth,
+          sex: formData.sex,
+          civilStatus: formData.civilStatus,
+          address: formData.address,
+          mobileNumber: formData.mobileNumber,
+          telephoneNumber: formData.telephoneNumber || null,
+          nicNo: formData.nicNo,
+          username: formData.username,
+          role: formData.role,
+          statusId: formData.statusId,
+          isActive: true,
+          managerId: 1 // You'll need to get this from your auth context
+        };
+
+        // Include password only if provided
+        if (formData.password) {
+          updatePayload.password = formData.password;
+        }
+
+        await ceoAPI.updateEmployee(selectedEmployee.id, updatePayload);
         setSuccess('Employee updated successfully');
       }
 
@@ -304,7 +330,14 @@ const EmployeeManagement = () => {
                             <tr key={employee.id}>
                               <td>{employee.employeeNo}</td>
                               <td>{employee.fullName}</td>
-                              <td>{employee.user?.role}</td>
+                              <td>
+                                {employee.user?.role ? 
+                                  employee.user.role.replace(/_/g, ' ') : 
+                                  employee.role ? 
+                                    employee.role.replace(/_/g, ' ') : 
+                                    'N/A'
+                                }
+                              </td>
                               <td>{employee.mobileNumber}</td>
                               <td>
                                 <span style={{
@@ -349,7 +382,7 @@ const EmployeeManagement = () => {
       {/* Modal */}
       {showModal && (
         <div className="modal-overlay">
-          <div className="modal" style={{ maxWidth: '600px', width: '90%' }}>
+          <div className="modal" style={{ maxWidth: '900px', width: '95%' }}>
             <div className="modal-header">
               <h2 className="modal-title">
                 {modalMode === 'create' ? 'Create New Employee' : 'Edit Employee'}
@@ -362,7 +395,7 @@ const EmployeeManagement = () => {
               </button>
             </div>
             
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} style={{ padding: '1.5rem' }}>
               <div className="grid-2">
                 <div className="form-group">
                   <label htmlFor="firstName">First Name *</label>
@@ -459,8 +492,6 @@ const EmployeeManagement = () => {
                   <option value="">Select Civil Status</option>
                   <option value="Single">Single</option>
                   <option value="Married">Married</option>
-                  <option value="Divorced">Divorced</option>
-                  <option value="Widowed">Widowed</option>
                 </select>
               </div>
 
@@ -585,7 +616,7 @@ const EmployeeManagement = () => {
                 </div>
               </div>
 
-              <div className="d-flex gap-2" style={{ marginTop: '2rem' }}>
+              <div className="d-flex gap-2" style={{ marginTop: '2rem', paddingBottom: '1rem' }}>
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
                   {modalMode === 'create' ? 'Create Employee' : 'Update Employee'}
                 </button>

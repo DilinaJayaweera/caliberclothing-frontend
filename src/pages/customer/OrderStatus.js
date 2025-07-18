@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-// import './OrderStatus.css';
+import './OrderStatus.css';
 
 const OrderStatus = () => {
   const { orderNo } = useParams();

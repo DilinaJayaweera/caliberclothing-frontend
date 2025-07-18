@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-// import './DispatchOfficerDashboard.css';
+import { dispatchOfficerAPI } from '../../services/api';
 
 const DispatchOfficerDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -16,15 +16,8 @@ const DispatchOfficerDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/dispatch-officer/dashboard', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setDashboardData(data);
-      }
+      const response = await dispatchOfficerAPI.getDashboard();
+      setDashboardData(response.data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     }
@@ -32,15 +25,8 @@ const DispatchOfficerDashboard = () => {
 
   const fetchStatistics = async () => {
     try {
-      const response = await fetch('/api/dispatch-officer/statistics', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setStatistics(data);
-      }
+      const response = await dispatchOfficerAPI.getStatistics();
+      setStatistics(response.data);
     } catch (error) {
       console.error('Error fetching statistics:', error);
     }
@@ -48,17 +34,10 @@ const DispatchOfficerDashboard = () => {
 
   const fetchRecentOrders = async () => {
     try {
-      const response = await fetch('/api/dispatch-officer/orders', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        // Get the 5 most recent orders
-        const recent = data.slice(0, 5);
-        setRecentOrders(recent);
-      }
+      const response = await dispatchOfficerAPI.getOrders();
+      // Get the 5 most recent orders
+      const recent = response.data.slice(0, 5);
+      setRecentOrders(recent);
     } catch (error) {
       console.error('Error fetching recent orders:', error);
     } finally {
@@ -127,46 +106,6 @@ const DispatchOfficerDashboard = () => {
             </Link>
           </div>
         </div>
-
-        <div className="recent-orders">
-          <h2>Recent Orders</h2>
-          {recentOrders.length > 0 ? (
-            <div className="orders-list">
-              {recentOrders.map(order => (
-                <div key={order.id} className="order-item">
-                  <div className="order-info">
-                    <div className="order-header">
-                      <h4>Order #{order.orderNo}</h4>
-                      <span className={`status-badge ${order.orderStatus?.value?.toLowerCase() || 'unknown'}`}>
-                        {order.orderStatus?.value || 'Unknown'}
-                      </span>
-                    </div>
-                    <div className="order-details">
-                      <p>Customer: {order.customer?.fullName || 'N/A'}</p>
-                      <p>Date: {new Date(order.orderDate).toLocaleDateString()}</p>
-                      <p>Amount: ${order.totalPrice?.toFixed(2) || '0.00'}</p>
-                    </div>
-                  </div>
-                  <div className="order-actions">
-                    <Link 
-                      to={`/dispatch-officer/orders/${order.id}`}
-                      className="view-order-btn"
-                    >
-                      View Details
-                    </Link>
-                  </div>
-                </div>
-              ))}
-              <Link to="/dispatch-officer/orders" className="view-all-orders">
-                View All Orders
-              </Link>
-            </div>
-          ) : (
-            <div className="no-orders">
-              <p>No recent orders found.</p>
-            </div>
-          )}
-        </div>
       </div>
 
       <div className="order-status-summary">
@@ -195,28 +134,6 @@ const DispatchOfficerDashboard = () => {
             <span className="count">
               {recentOrders.filter(order => order.orderStatus?.value === 'DELIVERED').length}
             </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="system-info">
-        <h2>System Information</h2>
-        <div className="info-grid">
-          <div className="info-item">
-            <h4>Role</h4>
-            <p>{dashboardData?.role}</p>
-          </div>
-          <div className="info-item">
-            <h4>Dashboard Type</h4>
-            <p>{dashboardData?.dashboardType}</p>
-          </div>
-          <div className="info-item">
-            <h4>Permissions</h4>
-            <ul>
-              {dashboardData?.permissions?.map(permission => (
-                <li key={permission}>{permission.replace(/_/g, ' ')}</li>
-              ))}
-            </ul>
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ const ProductManagement = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [modalMode, setModalMode] = useState('create'); // 'create' or 'edit'
+  const [modalMode, setModalMode] = useState('create');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -149,12 +149,10 @@ const ProductManagement = () => {
     setFormData(prev => {
       const updated = { ...prev, [name]: newValue };
       
-      // Auto-generate product number when name changes
       if (name === 'name' && modalMode === 'create') {
         updated.productNo = generateProductNo(value);
       }
       
-      // Auto-calculate profit percentage when cost or selling price changes
       if (name === 'costPrice' || name === 'sellingPrice') {
         const costPrice = name === 'costPrice' ? value : prev.costPrice;
         const sellingPrice = name === 'sellingPrice' ? value : prev.sellingPrice;
@@ -199,22 +197,25 @@ const ProductManagement = () => {
         productNo: formData.productNo,
         name: formData.name,
         description: formData.description,
-        productImage: formData.productImage || null,
+        productImage: formData.productImage || '/placeholder-image.jpg',
         costPrice: parseFloat(formData.costPrice),
         sellingPrice: parseFloat(formData.sellingPrice),
         quantityInStock: parseInt(formData.quantityInStock),
         profitPercentage: parseFloat(formData.profitPercentage),
         isActive: formData.isActive,
-        createdTimestamp: modalMode === 'create' ? new Date().toISOString() : undefined,
-        updatedTimestamp: new Date().toISOString(),
         supplierDetails: { id: parseInt(formData.supplierDetailsId) },
         productCategory: { id: parseInt(formData.productCategoryId) }
       };
 
       if (modalMode === 'create') {
+        // For create, include timestamps as before
+        productData.createdTimestamp = new Date().toISOString();
+        productData.updatedTimestamp = new Date().toISOString();
+        
         await ceoAPI.createProduct(productData);
         setSuccess('Product created successfully');
       } else {
+        // For update, do NOT include timestamps - let backend handle them
         await ceoAPI.updateProduct(selectedProduct.id, productData);
         setSuccess('Product updated successfully');
       }
@@ -228,7 +229,6 @@ const ProductManagement = () => {
     }
   };
 
-  // Filter products based on search and category
   const filteredProducts = products.filter(product => {
     const matchesSearch = !searchQuery || 
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -351,9 +351,9 @@ const ProductManagement = () => {
                               <td>{product.productNo}</td>
                               <td>{product.productCategory?.name}</td>
                               <td>
-                                <div>${product.sellingPrice?.toFixed(2)}</div>
+                                <div>Rs.{product.sellingPrice?.toFixed(2)}</div>
                                 <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                                  Cost: ${product.costPrice?.toFixed(2)}
+                                  Cost: Rs.{product.costPrice?.toFixed(2)}
                                 </div>
                               </td>
                               <td>
@@ -406,7 +406,7 @@ const ProductManagement = () => {
       {/* Modal */}
       {showModal && (
         <div className="modal-overlay">
-          <div className="modal" style={{ maxWidth: '700px', width: '90%' }}>
+          <div className="modal" style={{ maxWidth: '900px', width: '95%' }}>
             <div className="modal-header">
               <h2 className="modal-title">
                 {modalMode === 'create' ? 'Create New Product' : 'Edit Product'}
@@ -460,17 +460,21 @@ const ProductManagement = () => {
                 ></textarea>
               </div>
 
+              {/* Simple Image Path Input */}
               <div className="form-group">
-                <label htmlFor="productImage">Product Image URL</label>
+                <label htmlFor="productImage">Product Image Path</label>
                 <input
-                  type="url"
+                  type="text"
                   id="productImage"
                   name="productImage"
                   className="form-control"
                   value={formData.productImage}
                   onChange={handleChange}
-                  placeholder="https://example.com/image.jpg"
+                  placeholder="e.g., /images/product-name.jpg or C:/images/product.jpg"
                 />
+                <small style={{ color: '#666', fontSize: '0.8rem' }}>
+                  Enter the path to your image file on this computer
+                </small>
               </div>
 
               <div className="grid-2">

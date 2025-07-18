@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import './OrderViewing.css';
+import { dispatchOfficerAPI } from '../../services/api';
 
 const OrderViewing = () => {
   const [orders, setOrders] = useState([]);
@@ -22,15 +22,8 @@ const OrderViewing = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('/api/dispatch-officer/orders', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setOrders(data);
-      }
+      const response = await dispatchOfficerAPI.getOrders();
+      setOrders(response.data);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
@@ -40,15 +33,8 @@ const OrderViewing = () => {
 
   const fetchOrderStatuses = async () => {
     try {
-      const response = await fetch('/api/dispatch-officer/order-statuses', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setOrderStatuses(data);
-      }
+      const response = await dispatchOfficerAPI.getOrderStatuses();
+      setOrderStatuses(response.data);
     } catch (error) {
       console.error('Error fetching order statuses:', error);
     }
@@ -58,24 +44,12 @@ const OrderViewing = () => {
     if (!selectedOrder || !newStatusId) return;
 
     try {
-      const response = await fetch(`/api/dispatch-officer/orders/${selectedOrder.id}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ statusId: parseInt(newStatusId) })
-      });
-
-      if (response.ok) {
-        fetchOrders();
-        setShowStatusModal(false);
-        setSelectedOrder(null);
-        setNewStatusId('');
-        alert('Order status updated successfully!');
-      } else {
-        alert('Error updating order status');
-      }
+      await dispatchOfficerAPI.updateOrderStatus(selectedOrder.id, parseInt(newStatusId));
+      fetchOrders();
+      setShowStatusModal(false);
+      setSelectedOrder(null);
+      setNewStatusId('');
+      alert('Order status updated successfully!');
     } catch (error) {
       console.error('Error updating order status:', error);
       alert('Error updating order status');
@@ -89,18 +63,10 @@ const OrderViewing = () => {
     }
 
     try {
-      const response = await fetch(
-        `/api/dispatch-officer/orders/date-range?startDate=${dateFilter.startDate}T00:00:00&endDate=${dateFilter.endDate}T23:59:59`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setOrders(data);
-      }
+      const startDate = `${dateFilter.startDate}T00:00:00`;
+      const endDate = `${dateFilter.endDate}T23:59:59`;
+      const response = await dispatchOfficerAPI.getOrdersByDateRange(startDate, endDate);
+      setOrders(response.data);
     } catch (error) {
       console.error('Error filtering orders by date:', error);
     }
@@ -113,15 +79,8 @@ const OrderViewing = () => {
     }
 
     try {
-      const response = await fetch(`/api/dispatch-officer/orders/status/${statusId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setOrders(data);
-      }
+      const response = await dispatchOfficerAPI.getOrdersByStatus(statusId);
+      setOrders(response.data);
     } catch (error) {
       console.error('Error filtering orders by status:', error);
     }
@@ -265,7 +224,7 @@ const OrderViewing = () => {
               </div>
 
               <div className="cell amount-cell">
-                <span className="amount">${order.totalPrice?.toFixed(2) || '0.00'}</span>
+                <span className="amount">Rs.{order.totalPrice?.toFixed(2) || '0.00'}</span>
                 <span className="quantity">Qty: {order.quantity || 0}</span>
               </div>
 

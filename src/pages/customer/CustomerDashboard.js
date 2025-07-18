@@ -4,6 +4,7 @@ import Header from '../../components/common/Header';
 import Footer from '../../components/common/Footer';
 import { customerAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import './CustomerManagement.css';
 
 const CustomerDashboard = () => {
   const { user } = useAuth();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import './CustomerViewing.css';
+import { dispatchOfficerAPI } from '../../services/api';
 
 const CustomerViewing = () => {
   const [customers, setCustomers] = useState([]);
@@ -15,15 +15,8 @@ const CustomerViewing = () => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch('/api/dispatch-officer/customers', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setCustomers(data);
-      }
+      const response = await dispatchOfficerAPI.getCustomers();
+      setCustomers(response.data);
     } catch (error) {
       console.error('Error fetching customers:', error);
     } finally {
@@ -38,15 +31,8 @@ const CustomerViewing = () => {
     }
 
     try {
-      const response = await fetch(`/api/dispatch-officer/customers/search?searchTerm=${encodeURIComponent(searchTerm)}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setCustomers(data);
-      }
+      const response = await dispatchOfficerAPI.searchCustomers(searchTerm);
+      setCustomers(response.data);
     } catch (error) {
       console.error('Error searching customers:', error);
     }
@@ -54,15 +40,8 @@ const CustomerViewing = () => {
 
   const fetchCustomerOrders = async (customerId) => {
     try {
-      const response = await fetch(`/api/dispatch-officer/orders/customer/${customerId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setCustomerOrders(data);
-      }
+      const response = await dispatchOfficerAPI.getOrdersByCustomer(customerId);
+      setCustomerOrders(response.data);
     } catch (error) {
       console.error('Error fetching customer orders:', error);
     }
@@ -363,7 +342,7 @@ const CustomerViewing = () => {
                             <span className="order-date">
                               {new Date(order.orderDate).toLocaleDateString()}
                             </span>
-                            <span className="order-amount">${order.totalPrice?.toFixed(2)}</span>
+                            <span className="order-amount">Rs.{order.totalPrice?.toFixed(2)}</span>
                             <span className={`order-status ${order.orderStatus?.value?.toLowerCase()}`}>
                               {order.orderStatus?.value}
                             </span>
