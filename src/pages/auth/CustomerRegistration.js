@@ -110,11 +110,11 @@ const CustomerRegistration = () => {
     if (formData.dateOfBirth) {
       const today = new Date();
       const birthDate = new Date(formData.dateOfBirth);
-      const age = today.getFullYear() - birthDate.getFullYear();
+      let age = today.getFullYear() - birthDate.getFullYear(); // Changed const to let
       const monthDiff = today.getMonth() - birthDate.getMonth();
       
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
+        age--; // This works now!
       }
       
       if (age < 13) {
@@ -139,7 +139,27 @@ const CustomerRegistration = () => {
     }
 
     try {
-      await register(formData);
+      // Convert to the structure expected by backend
+      const registrationData = {
+        username: formData.username,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        fullName: formData.fullName,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        dateOfBirth: formData.dateOfBirth,
+        sex: formData.sex,
+        email: formData.email,
+        address: formData.address,
+        country: formData.country,
+        zipCode: formData.zipCode,
+        mobileNumber: formData.mobileNumber,
+        nicNo: formData.nicNo,
+        province: { id: parseInt(formData.provinceId) },  // Send as province object
+        status: { id: parseInt(formData.statusId) }       // Send as status object
+      };
+      
+      await register(registrationData);
       setSuccess('Registration successful! You can now login with your credentials.');
       
       // Redirect to login after 2 seconds

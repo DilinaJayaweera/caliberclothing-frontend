@@ -101,12 +101,12 @@ const LoginPage = () => {
               <p>
                 Don't have an account? 
                 <Link to="/register" style={{ marginLeft: '0.5rem', color: '#000', textDecoration: 'underline' }}>
-                  Register as Customer
+                  Register
                 </Link>
               </p>
             </div>
 
-            <div className="text-center mt-4" style={{ padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+            {/* <div className="text-center mt-4" style={{ padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
               <h3>Demo Login Credentials</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
                 <div>
@@ -130,7 +130,7 @@ const LoginPage = () => {
                   Password: password123
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </main>

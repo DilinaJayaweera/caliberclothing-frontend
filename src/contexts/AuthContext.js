@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { authAPI, updateBasicAuth } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -21,15 +21,17 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
-      const token = localStorage.getItem('token');
+      // Only check for basic auth since that's what you're using
+      const basicAuth = localStorage.getItem('basicAuth');
       const userData = localStorage.getItem('user');
       
-      if (token && userData) {
+      if (basicAuth && userData) {
+        // Just set the user from localStorage - the API interceptor will handle the auth header
         setUser(JSON.parse(userData));
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      localStorage.removeItem('token');
+      localStorage.removeItem('basicAuth');
       localStorage.removeItem('user');
     } finally {
       setLoading(false);
@@ -49,9 +51,6 @@ export const AuthProvider = ({ children }) => {
         
         // Store user data
         localStorage.setItem('user', JSON.stringify(userData));
-        if (response.data.token) {
-          localStorage.setItem('token', response.data.token);
-        }
         
         setUser(userData);
         return response.data;
@@ -60,7 +59,10 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      throw error.response?.data?.message || error.message || 'Login failed';
+      // Clear any stored auth data on login failure
+      localStorage.removeItem('basicAuth');
+      localStorage.removeItem('user');
+      throw error.message || 'Login failed';
     }
   };
 
@@ -70,7 +72,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      localStorage.removeItem('token');
+      localStorage.removeItem('basicAuth');
       localStorage.removeItem('user');
       setUser(null);
     }
@@ -96,6 +98,11 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.changePassword(passwordData);
       
       if (response.data.success) {
+        // Update the stored Basic Auth credentials with the new password
+        if (user && passwordData.newPassword) {
+          updateBasicAuth(user.username, passwordData.newPassword);
+        }
+        
         return response.data;
       } else {
         throw new Error(response.data.message || 'Password change failed');

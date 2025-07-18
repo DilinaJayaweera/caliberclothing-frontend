@@ -1,18 +1,32 @@
 import axios from 'axios';
 
+// Get base URL from environment variable or default to localhost:8083
+const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8083/api';
+
 // Create axios instance with base URL
 const API = axios.create({
-  baseURL: '/api',
+  baseURL: BASE_URL,
   timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  withCredentials: true,
 });
 
-// Add auth token to requests if available
+// Add Basic Auth to requests if available
 API.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Only use Basic Auth since that's your authentication method
+    const basicAuth = localStorage.getItem('basicAuth');
+    if (basicAuth) {
+      config.headers.Authorization = `Basic ${basicAuth}`;
+      console.log('Adding Basic Auth header:', `Basic ${basicAuth.substring(0, 10)}...`);
+    } else {
+      console.log('No Basic Auth found in localStorage');
     }
+    
+    console.log(`Making ${config.method?.toUpperCase()} request to:`, config.baseURL + config.url);
     return config;
   },
   (error) => {
@@ -24,9 +38,10 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error('API Response Error:', error.response?.status, error.response?.statusText);
     if (error.response?.status === 401) {
       // Unauthorized - clear auth data and redirect to login
-      localStorage.removeItem('token');
+      localStorage.removeItem('basicAuth');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
@@ -34,13 +49,130 @@ API.interceptors.response.use(
   }
 );
 
+// Helper function to set Basic Auth credentials
+export const setBasicAuth = (username, password) => {
+  const credentials = btoa(`${username}:${password}`);
+  localStorage.setItem('basicAuth', credentials);
+  console.log('Basic Auth credentials stored');
+};
+
+// Helper function to clear auth
+export const clearAuth = () => {
+  localStorage.removeItem('basicAuth');
+  localStorage.removeItem('user');
+  console.log('Auth cleared');
+};
+
+// Helper function to update Basic Auth credentials (for password changes)
+export const updateBasicAuth = (username, newPassword) => {
+  const credentials = btoa(`${username}:${newPassword}`);
+  localStorage.setItem('basicAuth', credentials);
+  console.log('Basic Auth credentials updated');
+};
+
 // Authentication APIs
 export const authAPI = {
-  login: (username, password) => API.post('/auth/login', { username, password }),
-  logout: () => API.post('/auth/logout'),
+  login: async (username, password) => {
+    try {
+      const credentials = btoa(`${username}:${password}`);
+      
+      // Define role checks in order of preference
+      const roleChecks = [
+        { 
+          role: 'CEO', 
+          endpoint: `${BASE_URL}/ceo/dashboard`, 
+          redirectUrl: '/ceo/dashboard' 
+        },
+        { 
+          role: 'PRODUCT_MANAGER', 
+          endpoint: `${BASE_URL}/product-manager/dashboard`, 
+          redirectUrl: '/product-manager/dashboard' 
+        },
+        { 
+          role: 'MERCHANDISE_MANAGER', 
+          endpoint: `${BASE_URL}/merchandise-manager/dashboard`, 
+          redirectUrl: '/merchandise-manager/dashboard' 
+        },
+        { 
+          role: 'DISPATCH_OFFICER', 
+          endpoint: `${BASE_URL}/dispatch-officer/dashboard`, 
+          redirectUrl: '/dispatch-officer/dashboard' 
+        },
+        { 
+          role: 'CUSTOMER', 
+          endpoint: `${BASE_URL}/customer/dashboard`, 
+          redirectUrl: '/c' 
+        }
+      ];
+      
+      // Test each role until one succeeds
+      for (const check of roleChecks) {
+        try {
+          console.log(`Testing role: ${check.role} with endpoint: ${check.endpoint}`);
+          
+          const testResponse = await axios.get(check.endpoint, {
+            headers: {
+              'Authorization': `Basic ${credentials}`,
+              'Content-Type': 'application/json',
+            },
+            timeout: 10000,
+          });
+          
+          console.log(`Login successful for role: ${check.role}`);
+          
+          // If successful, store credentials and return role info
+          setBasicAuth(username, password);
+          
+          return {
+            data: {
+              success: true,
+              message: "Login successful",
+              role: check.role,
+              username: username,
+              redirectUrl: check.redirectUrl
+            }
+          };
+        } catch (error) {
+          console.log(`Role ${check.role} failed:`, error.response?.status);
+          // Continue to next role check if this one fails
+          if (error.response?.status === 401 || error.response?.status === 403) {
+            continue;
+          }
+          // For other errors (500, network issues), break the loop
+          break;
+        }
+      }
+      
+      // If no role worked, throw invalid credentials error
+      throw new Error('Invalid username or password');
+      
+    } catch (error) {
+      console.error('Login failed:', error);
+      if (error.message === 'Invalid username or password') {
+        throw error;
+      }
+      throw new Error('Login failed. Please try again.');
+    }
+  },
+  
+  logout: () => {
+    clearAuth();
+    return Promise.resolve({ data: { success: true, message: "Logout successful" } });
+  },
+  
   register: (userData) => API.post('/customer/register', userData),
   changePassword: (passwordData) => API.post('/auth/change-password', passwordData),
-  getCurrentUser: () => API.get('/auth/user'),
+  
+  getCurrentUser: () => {
+    const user = localStorage.getItem('user');
+    const basicAuth = localStorage.getItem('basicAuth');
+    
+    if (user && basicAuth) {
+      return Promise.resolve({ data: JSON.parse(user) });
+    } else {
+      return Promise.reject(new Error('No user logged in'));
+    }
+  },
 };
 
 // Public APIs
@@ -60,7 +192,10 @@ export const ceoAPI = {
   getEmployees: () => API.get('/ceo/employees'),
   getEmployee: (id) => API.get(`/ceo/employees/${id}`),
   createEmployee: (employeeData) => API.post('/ceo/employees', employeeData),
-  updateEmployee: (id, employeeData) => API.put(`/ceo/employees/${id}`, employeeData),
+  updateEmployee: (id, employeeData) => {
+    // Send flat structure directly - backend now accepts EmployeeUpdateRequest
+    return API.put(`/ceo/employees/${id}`, employeeData);
+  },
   deleteEmployee: (id) => API.delete(`/ceo/employees/${id}`),
   
   // Product Management
