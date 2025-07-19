@@ -122,10 +122,6 @@ const MerchandiseManagerDashboard = () => {
                 <div className="stat-number">-</div>
                 <div className="stat-label">Total Inventory Items</div>
               </div>
-              <div className="stat-card">
-                <div className="stat-number">-</div>
-                <div className="stat-label">Pending Payments</div>
-              </div>
             </div>
 
             {/* Quick Actions */}

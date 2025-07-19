@@ -274,11 +274,12 @@ export const merchandiseManagerAPI = {
   markAsReordered: (productId) => API.post(`/merchandise-manager/notifications/mark-reordered/${productId}`),
   
   // Inventory Management
-  getInventory: () => API.get('/merchandise-manager/inventory'),
-  updateInventoryQuantity: (id, quantity) => API.put(`/merchandise-manager/inventory/${id}/quantity?quantity=${quantity}`),
-  updateReorderLevel: (id, reorderLevel) => API.put(`/merchandise-manager/inventory/${id}/reorder-level?reorderLevel=${reorderLevel}`),
-  addStock: (productId, quantity) => API.patch(`/merchandise-manager/inventory/add-stock/${productId}?quantity=${quantity}`),
-  updateProductOnDelivery: (id, deliveredQuantity) => API.put(`/merchandise-manager/products/${id}/delivered?deliveredQuantity=${deliveredQuantity}`),
+getInventory: () => API.get('/merchandise-manager/inventory'),
+createInventory: (inventoryData) => API.post('/inventory', inventoryData), // Add this line
+updateInventoryQuantity: (id, quantity) => API.put(`/merchandise-manager/inventory/${id}/quantity?quantity=${quantity}`),
+updateReorderLevel: (id, reorderLevel) => API.put(`/merchandise-manager/inventory/${id}/reorder-level?reorderLevel=${reorderLevel}`),
+addStock: (productId, quantity) => API.patch(`/merchandise-manager/inventory/add-stock/${productId}?quantity=${quantity}`),
+updateProductOnDelivery: (id, deliveredQuantity) => API.put(`/merchandise-manager/products/${id}/delivered?deliveredQuantity=${deliveredQuantity}`),
   
   // Supplier Management
   getSuppliers: () => API.get('/merchandise-manager/suppliers'),
@@ -405,6 +406,7 @@ export const commonAPI = {
   getStatuses: () => API.get('/statuses'),
   getCategories: () => API.get('/categories'),
   getSuppliers: () => API.get('/suppliers'),
+  getProducts: () => API.get('/products'), // Add this line
   getDeliveryProviders: () => API.get('/delivery-providers'),
   getPaymentMethods: () => API.get('/payment-methods'),
   getPaymentStatuses: () => API.get('/payment-statuses'),
