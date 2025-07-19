@@ -61,12 +61,12 @@ const CustomerDashboard = () => {
       description: 'Update your personal information',
       icon: '👤'
     },
-    { 
-      title: 'Payment Info', 
-      path: '/customer/payment-info', 
-      description: 'View payment details',
-      icon: '💳'
-    }
+    // { 
+    //   title: 'Payment Info', 
+    //   path: '/customer/payment-info', 
+    //   description: 'View payment details',
+    //   icon: '💳'
+    // }
   ];
 
   if (loading) {
@@ -221,54 +221,6 @@ const CustomerDashboard = () => {
               </div>
             )}
 
-            {/* Customer Tips */}
-            <div className="grid-2" style={{ marginTop: '2rem' }}>
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">Shopping Tips</h3>
-                </div>
-                <div className="card-body">
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                    <li style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
-                      💡 Add items to your wishlist to save them for later
-                    </li>
-                    <li style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
-                      🚚 Free shipping on orders over $50
-                    </li>
-                    <li style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
-                      🔄 Easy returns within 30 days
-                    </li>
-                    <li style={{ padding: '0.5rem 0' }}>
-                      📱 Track your orders in real-time
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">Account Security</h3>
-                </div>
-                <div className="card-body">
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                    <li style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
-                      🔐 Keep your password secure and unique
-                    </li>
-                    <li style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
-                      📧 Verify your email address is current
-                    </li>
-                    <li style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
-                      📞 Update your phone number for order notifications
-                    </li>
-                    <li style={{ padding: '0.5rem 0' }}>
-                      <Link to="/change-password" style={{ color: '#000', textDecoration: 'underline' }}>
-                        🔄 Change your password
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </main>

@@ -224,10 +224,10 @@ const SupplierManagement = () => {
                 <div className="stat-number" style={{ color: '#28a745' }}>{stats.active}</div>
                 <div className="stat-label">Active Suppliers</div>
               </div>
-              <div className="stat-card">
+              {/* <div className="stat-card">
                 <div className="stat-number" style={{ color: '#dc3545' }}>{stats.inactive}</div>
                 <div className="stat-label">Inactive Suppliers</div>
-              </div>
+              </div> */}
               <div className="stat-card">
                 <div className="stat-number">{stats.countries}</div>
                 <div className="stat-label">Countries</div>

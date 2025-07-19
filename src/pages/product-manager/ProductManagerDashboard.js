@@ -261,7 +261,7 @@ const ProductManagerDashboard = () => {
               </div>
             )}
 
-            {/* Product Manager Responsibilities */}
+            {/* Product Manager Responsibilities
             <div className="grid-2" style={{ marginTop: '2rem' }}>
               <div className="card">
                 <div className="card-header">
@@ -289,9 +289,9 @@ const ProductManagerDashboard = () => {
                     </li>
                   </ul>
                 </div>
-              </div>
+              </div> */}
 
-              <div className="card">
+              {/* <div className="card">
                 <div className="card-header">
                   <h3 className="card-title">Quick Tips</h3>
                 </div>
@@ -317,8 +317,8 @@ const ProductManagerDashboard = () => {
                     </li>
                   </ul>
                 </div>
-              </div>
-            </div>
+              </div> */}
+            {/* </div> */}
 
             {/* Recent Activity Summary */}
             <div className="card" style={{ marginTop: '2rem' }}>
@@ -351,7 +351,7 @@ const ProductManagerDashboard = () => {
                     </div>
                   </div>
                   
-                  <div style={{ textAlign: 'center', padding: '1rem' }}>
+                  {/* <div style={{ textAlign: 'center', padding: '1rem' }}>
                     <div style={{ fontSize: '2rem', color: '#17a2b8', marginBottom: '0.5rem' }}>
                       📂
                     </div>
@@ -361,7 +361,7 @@ const ProductManagerDashboard = () => {
                     <div style={{ color: '#666', fontSize: '0.9rem' }}>
                       Product Categories
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

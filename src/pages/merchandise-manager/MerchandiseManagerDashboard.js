@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-// import './MerchandiseManagerDashboard.css';
+import Header from '../../components/common/Header';
+import Footer from '../../components/common/Footer';
+import { merchandiseManagerAPI } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const MerchandiseManagerDashboard = () => {
+  const { user } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
   const [lowStockItems, setLowStockItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchDashboardData();
@@ -14,31 +19,18 @@ const MerchandiseManagerDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/merchandise-manager/dashboard', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setDashboardData(data);
-      }
+      const response = await merchandiseManagerAPI.getDashboard();
+      setDashboardData(response.data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      setError('Failed to fetch dashboard data');
     }
   };
 
   const fetchLowStockItems = async () => {
     try {
-      const response = await fetch('/api/merchandise-manager/notifications/low-stock', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setLowStockItems(data);
-      }
+      const response = await merchandiseManagerAPI.getLowStockNotifications();
+      setLowStockItems(response.data);
     } catch (error) {
       console.error('Error fetching low stock items:', error);
     } finally {
@@ -48,130 +40,221 @@ const MerchandiseManagerDashboard = () => {
 
   const markAsReordered = async (productId) => {
     try {
-      const response = await fetch(`/api/merchandise-manager/notifications/mark-reordered/${productId}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        alert('Product marked as reordered successfully!');
-        fetchLowStockItems();
-      }
+      await merchandiseManagerAPI.markAsReordered(productId);
+      alert('Product marked as reordered successfully!');
+      fetchLowStockItems();
     } catch (error) {
       console.error('Error marking product as reordered:', error);
       alert('Error marking product as reordered');
     }
   };
 
+  const quickActions = [
+    { 
+      title: 'Low Stock Notifications', 
+      path: '/merchandise-manager/notifications', 
+      description: 'View items that need reordering',
+      icon: '⚠️',
+      badge: lowStockItems.length > 0 ? lowStockItems.length : null
+    },
+    { 
+      title: 'Inventory Management', 
+      path: '/merchandise-manager/inventory', 
+      description: 'Manage stock levels and quantities',
+      icon: '📦'
+    },
+    { 
+      title: 'Manage Suppliers', 
+      path: '/merchandise-manager/suppliers', 
+      description: 'Add, edit, and manage suppliers',
+      icon: '🏭'
+    },
+    { 
+      title: 'Supplier Payments', 
+      path: '/merchandise-manager/supplier-payments', 
+      description: 'Track and manage supplier payments',
+      icon: '💳'
+    }
+  ];
+
   if (loading) {
-    return <div className="loading">Loading dashboard...</div>;
+    return (
+      <div>
+        <Header />
+        <div className="loading">
+          <div className="spinner"></div>
+          <p>Loading dashboard...</p>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   return (
-    <div className="merchandise-dashboard">
-      <div className="dashboard-header">
-        <h1>Merchandise Manager Dashboard</h1>
-        <p>Welcome, {dashboardData?.username}</p>
-      </div>
+    <div>
+      <Header />
+      
+      <main className="content-container">
+        <div className="container">
+          <div className="dashboard">
+            <div className="dashboard-header">
+              <h1 className="dashboard-title">Merchandise Manager Dashboard</h1>
+              <p className="dashboard-subtitle">
+                Welcome back, {user?.username}! Manage inventory, suppliers, and stock levels efficiently.
+              </p>
+            </div>
 
-      <div className="dashboard-stats">
-        <div className="stat-card urgent">
-          <h3>Low Stock Alerts</h3>
-          <div className="stat-number">{lowStockItems.length}</div>
-          <p>Items need reordering</p>
-        </div>
-        <div className="stat-card">
-          <h3>Total Inventory Items</h3>
-          <div className="stat-number">-</div>
-          <p>Active products</p>
-        </div>
-        <div className="stat-card">
-          <h3>Active Suppliers</h3>
-          <div className="stat-number">-</div>
-          <p>Business partners</p>
-        </div>
-        <div className="stat-card">
-          <h3>Pending Payments</h3>
-          <div className="stat-number">-</div>
-          <p>To suppliers</p>
-        </div>
-      </div>
+            {error && (
+              <div className="alert alert-error">
+                {error}
+              </div>
+            )}
 
-      <div className="dashboard-content">
-        <div className="quick-actions">
-          <h2>Quick Actions</h2>
-          <div className="action-buttons">
-            <Link to="/merchandise-manager/low-stock-notifications" className="action-btn urgent">
-              <span className="notification-badge">{lowStockItems.length}</span>
-              View Low Stock Items
-            </Link>
-            <Link to="/merchandise-manager/inventory-management" className="action-btn">
-              Manage Inventory
-            </Link>
-            <Link to="/merchandise-manager/supplier-management" className="action-btn">
-              Manage Suppliers
-            </Link>
-            <Link to="/merchandise-manager/supplier-payment-management" className="action-btn">
-              Supplier Payments
-            </Link>
-          </div>
-        </div>
-
-        <div className="recent-alerts">
-          <h2>Recent Low Stock Alerts</h2>
-          {lowStockItems.length > 0 ? (
-            <div className="alerts-list">
-              {lowStockItems.slice(0, 5).map(item => (
-                <div key={item.id} className="alert-item">
-                  <div className="alert-info">
-                    <h4>{item.product?.name}</h4>
-                    <p>Current Stock: {item.totalQuantityPurchasing}</p>
-                    <p>Reorder Level: {item.reorderLevel}</p>
-                  </div>
-                  <button 
-                    className="reorder-btn"
-                    onClick={() => markAsReordered(item.product?.id)}
-                  >
-                    Mark as Reordered
-                  </button>
+            {/* Statistics Cards */}
+            <div className="dashboard-stats">
+              <div className="stat-card">
+                <div className="stat-number" style={{ color: lowStockItems.length > 0 ? '#dc3545' : '#28a745' }}>
+                  {lowStockItems.length}
                 </div>
-              ))}
-              {lowStockItems.length > 5 && (
-                <Link to="/merchandise-manager/low-stock-notifications" className="view-all-btn">
-                  View All ({lowStockItems.length})
-                </Link>
-              )}
+                <div className="stat-label">Low Stock Alerts</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-number">-</div>
+                <div className="stat-label">Total Inventory Items</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-number">-</div>
+                <div className="stat-label">Pending Payments</div>
+              </div>
             </div>
-          ) : (
-            <div className="no-alerts">
-              <p>No low stock alerts at the moment.</p>
-            </div>
-          )}
-        </div>
 
-        <div className="system-info">
-          <h2>System Information</h2>
-          <div className="info-grid">
-            <div className="info-item">
-              <h4>Role</h4>
-              <p>{dashboardData?.role}</p>
+            {/* Quick Actions */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">Quick Actions</h2>
+              </div>
+              <div className="card-body">
+                <div className="grid-2">
+                  {quickActions.map((action, index) => (
+                    <Link
+                      key={index}
+                      to={action.path}
+                      className="card"
+                      style={{ 
+                        textDecoration: 'none', 
+                        color: 'inherit',
+                        transition: 'transform 0.3s, box-shadow 0.3s',
+                        position: 'relative'
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    >
+                      {action.badge && (
+                        <span style={{
+                          position: 'absolute',
+                          top: '10px',
+                          right: '10px',
+                          backgroundColor: '#dc3545',
+                          color: 'white',
+                          borderRadius: '50%',
+                          width: '24px',
+                          height: '24px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '0.8rem',
+                          fontWeight: 'bold'
+                        }}>
+                          {action.badge}
+                        </span>
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div style={{ fontSize: '2rem' }}>
+                          {action.icon}
+                        </div>
+                        <div>
+                          <h3 style={{ marginBottom: '0.5rem', fontSize: '1.2rem' }}>
+                            {action.title}
+                          </h3>
+                          <p style={{ color: '#666', fontSize: '0.9rem', margin: 0 }}>
+                            {action.description}
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="info-item">
-              <h4>Dashboard Type</h4>
-              <p>{dashboardData?.dashboardType}</p>
-            </div>
-            <div className="info-item">
-              <h4>Permissions</h4>
-              <ul>
-                {dashboardData?.permissions?.map(permission => (
-                  <li key={permission}>{permission.replace(/_/g, ' ')}</li>
-                ))}
-              </ul>
-            </div>
+
+            {/* Low Stock Alert */}
+            {lowStockItems.length > 0 && (
+              <div className="card">
+                <div className="card-header">
+                  <h3 className="card-title" style={{ color: '#dc3545' }}>⚠️ Low Stock Alert</h3>
+                  <Link to="/merchandise-manager/notifications" className="btn btn-danger btn-small">
+                    View All Low Stock Items
+                  </Link>
+                </div>
+                <div className="card-body">
+                  <div className="table-container">
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>Product</th>
+                          <th>Current Stock</th>
+                          <th>Reorder Level</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {lowStockItems.slice(0, 5).map(item => (
+                          <tr key={item.id}>
+                            <td>
+                              <div style={{ fontWeight: 'bold' }}>
+                                {item.product?.name || 'Unknown Product'}
+                              </div>
+                            </td>
+                            <td>
+                              <span style={{ 
+                                color: '#dc3545',
+                                fontWeight: 'bold'
+                              }}>
+                                {item.totalQuantityPurchasing || 0}
+                              </span>
+                            </td>
+                            <td>
+                              <span style={{ color: '#666' }}>
+                                {item.reorderLevel || 'Not set'}
+                              </span>
+                            </td>
+                            <td>
+                              <button
+                                onClick={() => markAsReordered(item.product?.id)}
+                                className="btn btn-secondary btn-small"
+                              >
+                                Mark as Reordered
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      </main>
+      
+      <Footer />
     </div>
   );
 };

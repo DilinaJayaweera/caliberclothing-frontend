@@ -26,6 +26,7 @@ import ReportsGeneration from './pages/ceo/ReportsGeneration';
 // Product Manager Dashboard
 import ProductManagerDashboard from './pages/product-manager/ProductManagerDashboard';
 import PMProductManagement from './pages/product-manager/ProductManagement';
+import CategoryManagement from './pages/product-manager/CategoryManagement';
 
 // Merchandise Manager Dashboard
 import MerchandiseManagerDashboard from './pages/merchandise-manager/MerchandiseManagerDashboard';
@@ -47,6 +48,7 @@ import WishlistPage from './pages/customer/WishlistPage';
 import OrderHistory from './pages/customer/OrderHistory';
 import OrderStatus from './pages/customer/OrderStatus';
 import CustomerProfile from './pages/customer/CustomerProfile';
+import CustomerCheckout from './pages/customer/CustomerCheckout';
 
 // Common
 import ChangePassword from './pages/common/ChangePassword';
@@ -128,6 +130,11 @@ function App() {
                 <PMProductManagement />
               </ProtectedRoute>
             } />
+            <Route path="/product-manager/categories" element={
+              <ProtectedRoute requiredRole="PRODUCT_MANAGER">
+                <CategoryManagement />
+              </ProtectedRoute>
+            } />
 
             {/* Merchandise Manager Routes */}
             <Route path="/merchandise-manager/dashboard" element={
@@ -187,6 +194,11 @@ function App() {
             <Route path="/customer/cart" element={
               <ProtectedRoute requiredRole="CUSTOMER">
                 <CartPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/customer/checkout" element={
+              <ProtectedRoute requiredRole="CUSTOMER">
+                <CustomerCheckout />
               </ProtectedRoute>
             } />
             <Route path="/customer/wishlist" element={

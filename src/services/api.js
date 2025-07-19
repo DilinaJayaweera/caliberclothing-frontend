@@ -244,6 +244,8 @@ export const ceoAPI = {
 // Product Manager APIs
 export const productManagerAPI = {
   getDashboard: () => API.get('/product-manager/dashboard'),
+  
+  // Product Management
   getProducts: () => API.get('/product-manager/products'),
   getProduct: (id) => API.get(`/product-manager/products/${id}`),
   createProduct: (productData) => API.post('/product-manager/products', productData),
@@ -253,6 +255,14 @@ export const productManagerAPI = {
   getProductsByCategory: (categoryId) => API.get(`/product-manager/products/category/${categoryId}`),
   getLowStockProducts: (threshold) => API.get(`/product-manager/products/low-stock?threshold=${threshold}`),
   updateStock: (id, quantity) => API.put(`/product-manager/products/${id}/stock?quantity=${quantity}`),
+  
+  // Category Management
+  getCategories: () => API.get('/product-manager/categories'),
+  getCategory: (id) => API.get(`/product-manager/categories/${id}`),
+  createCategory: (categoryData) => API.post('/product-manager/categories', categoryData),
+  updateCategory: (id, categoryData) => API.put(`/product-manager/categories/${id}`, categoryData),
+  deleteCategory: (id) => API.delete(`/product-manager/categories/${id}`),
+  searchCategories: (query) => API.get(`/product-manager/categories/search?name=${query}`),
 };
 
 // Merchandise Manager APIs
@@ -274,6 +284,7 @@ export const merchandiseManagerAPI = {
   getSuppliers: () => API.get('/merchandise-manager/suppliers'),
   createSupplier: (supplierData) => API.post('/merchandise-manager/suppliers', supplierData),
   updateSupplier: (id, supplierData) => API.put(`/merchandise-manager/suppliers/${id}`, supplierData),
+  deleteSupplier: (id) => API.delete(`/merchandise-manager/suppliers/${id}`), // Added this line
   searchSuppliers: (name) => API.get(`/merchandise-manager/suppliers/search?name=${name}`),
   
   // Supplier Payment Management
@@ -320,6 +331,7 @@ export const customerAPI = {
   
   // Profile Management
   getProfile: () => API.get('/customer/profile'),
+  getCurrentCustomer: () => API.get('/customer/current'), // New endpoint for current customer data
   updateProfile: (profileData) => API.put('/customer/profile', profileData),
   
   // Cart Management
@@ -351,6 +363,40 @@ export const customerAPI = {
   // Analytics
   getAnalytics: () => API.get('/customer/analytics/summary'),
   getSpendingTrend: (months) => API.get(`/customer/analytics/spending-trend?months=${months}`),
+};
+
+// Order APIs
+export const orderAPI = {
+  createOrder: (orderData) => API.post('/orders', orderData),
+  updateOrder: (id, orderData) => API.put(`/orders/${id}`, orderData),
+  getOrderById: (id) => API.get(`/orders/${id}`),
+  getOrderByOrderNo: (orderNo) => API.get(`/orders/order-no/${orderNo}`),
+  getAllOrders: () => API.get('/orders'),
+  getOrdersByCustomerId: (customerId) => API.get(`/orders/customer/${customerId}`),
+  getOrdersByEmployeeId: (employeeId) => API.get(`/orders/employee/${employeeId}`),
+  getOrdersByStatusId: (statusId) => API.get(`/orders/status/${statusId}`),
+  getOrdersByDateRange: (startDate, endDate) => API.get(`/orders/date-range?startDate=${startDate}&endDate=${endDate}`),
+  getOrdersByPriceRange: (minPrice, maxPrice) => API.get(`/orders/price-range?minPrice=${minPrice}&maxPrice=${maxPrice}`),
+  deleteOrder: (id) => API.delete(`/orders/${id}`),
+  existsByOrderNo: (orderNo) => API.get(`/orders/exists/${orderNo}`),
+};
+
+// Inventory APIs
+export const inventoryAPI = {
+  getAllInventories: () => API.get('/inventory'),
+  getInventoryById: (id) => API.get(`/inventory/${id}`),
+  getInventoryByProductId: (productId) => API.get(`/inventory/product/${productId}`),
+  createInventory: (inventoryData) => API.post('/inventory', inventoryData),
+  updateInventory: (id, inventoryData) => API.put(`/inventory/${id}`, inventoryData),
+  deleteInventory: (id) => API.delete(`/inventory/${id}`),
+  getLowStockItems: () => API.get('/inventory/low-stock'),
+  getItemsByQuantityLessThan: (quantity) => API.get(`/inventory/quantity-less-than/${quantity}`),
+  getItemsByReorderLevel: (reorderLevel) => API.get(`/inventory/reorder-level/${reorderLevel}`),
+  updateQuantity: (id, quantity) => API.patch(`/inventory/${id}/quantity?quantity=${quantity}`),
+  updateReorderLevel: (id, reorderLevel) => API.patch(`/inventory/${id}/reorder-level?reorderLevel=${reorderLevel}`),
+  checkStockAvailability: (productId, requiredQuantity) => API.get(`/inventory/check-stock/${productId}?requiredQuantity=${requiredQuantity}`),
+  reduceStock: (productId, quantity) => API.patch(`/inventory/reduce-stock/${productId}?quantity=${quantity}`),
+  addStock: (productId, quantity) => API.patch(`/inventory/add-stock/${productId}?quantity=${quantity}`),
 };
 
 // Common APIs
